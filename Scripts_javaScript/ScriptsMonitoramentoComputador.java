@@ -46,7 +46,7 @@ public class ScriptsMonitoramentoComputador {
 
         public static void main(String[] args) throws IOException, MBeanException, SigarException {
 
-            String nomeArquivo = "monitoramentoJava.txt";
+            String nomeArquivo = "ADS-Scripts/monitoramentoJava.txt";
             int quantidadeTestes = 10;
             int intervaloTempo = 1000; //em segundos 
 
@@ -70,7 +70,7 @@ public class ScriptsMonitoramentoComputador {
             
             String outputMem = "", outputDisk = "", outputCpu = "", outputRede = "";
             String output = "";
-            String labelArquivo = "Data Hora CpuPercent QntCpus CpuTimesUser CpuTimesSystem CpuTimesIdle MemTotal MemAvaliable MemUsed DiskUsed DiskTotal DiskPercent BytesSend BytesRecv";
+            String labelArquivo = "Testes Data Hora CpuPercent QntCpus CpuTimesUser CpuTimesSystem CpuTimesIdle MemTotal MemAvaliable MemUsed DiskUsed DiskTotal DiskPercent BytesSend BytesRecv";
             
             System.out.println(labelArquivo);
             escreverNoArquivo(nomeArquivo, labelArquivo);
@@ -127,18 +127,16 @@ public class ScriptsMonitoramentoComputador {
                     NetInterfaceStat stat = sigar.getNetInterfaceStat(interfacePrincipal);
                     bytesRecv = stat.getRxBytes();
                     packetsRecv = stat.getRxPackets();
-                    errorsRecv = stat.getRxErrors();
                     bytesSent = stat.getTxBytes();
                     packetsSent = stat.getTxPackets();
-                    errorsSent = stat.getTxErrors();
 
-                    outputRede = bytesSent + " " + bytesRecv + " " + errorsSent + " " + errorsRecv + " ";
+                    outputRede = bytesSent + " " + bytesRecv + " ";
                   
                     Date dataHoraAtual = new Date();
                     String dataFormatada = new SimpleDateFormat("yy/MM/dd").format(dataHoraAtual);
                     String horaFormatada = new SimpleDateFormat("HH:mm:ss").format(dataHoraAtual);
                     
-                    output = dataFormatada + horaFormatada + outputCpu + outputMem + outputDisk + outputRede;
+                    output = i + dataFormatada + horaFormatada + outputCpu + outputMem + outputDisk + outputRede;
                     System.out.println(output);
                     escreverNoArquivo(nomeArquivo, output);
 

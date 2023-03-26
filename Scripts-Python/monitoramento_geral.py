@@ -59,7 +59,7 @@ def teste_rede():
 
     return bytes_sent, bytes_recv, err_sent, err_recv
 
-quantidade_testes = 200
+quantidade_testes = 1000
 intervalo_minutos = 1 
 segundos = 1
 
