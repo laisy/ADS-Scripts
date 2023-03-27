@@ -1,17 +1,16 @@
-# sudo chmod a+x monitoramento_cpu.sh
-# chmod +x monitoramento_cpu.sh
-# ./monitoramento_cpu.sh
-
 #!/bin/bash
 
-#!/bin/bash
+# Ler o arquivo /proc/stat para obter informações de uso da CPU
+cpu_info=$(cat /proc/stat | grep 'cpu ')
 
-# Obter a saída do comando mpstat e filtrar apenas a linha de resumo da CPU
-mpstat_output=$(mpstat -P ALL 1 1 | awk '/^Average:/ && $2 == "all" { print $0 }')
+# Definir o separador de campo como espaço
+IFS=' '
 
-# Extrair o valor total de uso da CPU da linha de resumo
-cpu_total=$(echo "$mpstat_output" | awk '{ printf "%.0f", 100 - $NF }')
+# Ler as informações de uso da CPU em variáveis separadas
+read cpu _ user nice system idle iowait irq softirq steal guest guest_nice << $cpu_info
+
+# Calcular o valor total de uso da CPU
+cpu_total=$((user+system+nice+idle+iowait+irq+softirq+steal+guest+guest_nice))
 
 # Imprimir o valor total de uso da CPU
-echo "Valor total da CPU: $cpu_total%"
-
+echo "Valor total da CPU: $cpu_total"
