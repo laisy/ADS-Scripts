@@ -4,183 +4,184 @@
  * and open the template in the editor.
  */
 
-package scriptsmonitoramentocomputador;
+ package scriptsmonitoramentocomputador;
 
-import com.sun.management.OperatingSystemMXBean;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.management.ManagementFactory;
-import java.net.NetworkInterface;
-import java.nio.file.FileStore;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Set;
-import javax.management.MBeanException;
-import javax.management.MBeanServerConnection;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
-import org.hyperic.sigar.Cpu;
-import org.hyperic.sigar.CpuInfo;
-import org.hyperic.sigar.CpuPerc;
-import org.hyperic.sigar.NetInterfaceStat;
-import org.hyperic.sigar.Sigar;
-import org.hyperic.sigar.SigarException;
-
-/**
- *
- * @author Itamar Jr
- */
-public class ScriptsMonitoramentoComputador {
-
-        public static void main(String[] args) throws IOException, MBeanException, SigarException {
-
-            String nomeArquivo = "ADS-Scripts/monitoramentoJava.txt";
-            int quantidadeTestes = 10;
-            int intervaloTempo = 1000; //em segundos 
-
-            OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
-            DecimalFormat formato = new DecimalFormat("#.##");
-            Sigar sigar = null;
-            String interfacePrincipal = obterInterfaceNetPrincipal();
-
-            double memTotal, memFree, memUsed, memPercent;
-            
-            double diskTotal = 0.0, diskFree = 0.0, diskUsed = 0.0, diskPercent = 0.0;                        
-            
-            double cpuUsage = 0.0;
-            CpuInfo[] cpuInfos = null; 
-            double cpuPerc = 0.0; 
-            Cpu cpu = null;
-            long cpuTimesUser, cpuTimesSystem, cpuIdle;
-            int qntCpus;
-            
-            long bytesRecv, bytesSent, packetsRecv, packetsSent, errorsRecv, errorsSent;
-            
-            String outputMem = "", outputDisk = "", outputCpu = "", outputRede = "";
-            String output = "";
-            String labelArquivo = "Testes Data Hora CpuPercent QntCpus CpuTimesUser CpuTimesSystem CpuTimesIdle MemTotal MemAvaliable MemUsed DiskUsed DiskTotal DiskPercent BytesSend BytesRecv";
-            
-            System.out.println(labelArquivo);
-            escreverNoArquivo(nomeArquivo, labelArquivo);
-            for (int i=0; i < quantidadeTestes; i++){
-                try {               
-                    //----Monitoramento de CPU--------------
-                    //Download do Sigar .JAR e todas as dependencias necessarias estao no link abaixo:
-                    //https://sourceforge.net/projects/sigar/files/sigar/1.6/hyperic-sigar-1.6.4.zip/download
-                    //Caso falte alguma DLL, inserir na pasta c:/Program Files/Java/jdk/bin
-                    sigar = new Sigar();    
-                    
-                    
-                    cpuInfos = sigar.getCpuInfoList();
-                    qntCpus = cpuInfos.length;
-            
-                    cpuPerc = sigar.getCpuPerc().getCombined() * 100.0;
-                    
-                    cpu = sigar.getCpu();
-                    cpuTimesUser = cpu.getUser();
-                    cpuTimesSystem = cpu.getSys();
-                    cpuIdle = cpu.getIdle();
-                    
-                    outputCpu = formato.format(cpuPerc).replace(',', '.') + " " + qntCpus + " " + formato.format(cpuTimesUser).replace(',', '.') + " " + formato.format(cpuTimesSystem).replace(',', '.') + " " + formato.format(cpuIdle).replace(',', '.') + " "; 
-
-                    //----Monitoramento Memoria------------
-                    memTotal = osBean.getTotalPhysicalMemorySize()/1024.0/1024.0/1024.0; //Em GB
-                    memFree = osBean.getFreePhysicalMemorySize()/1024.0/1024.0/1024.0;
-                    memUsed = (memTotal - memFree);
-                    memPercent = ((double) memUsed / memTotal) * 100.0;
-
-                    outputMem = formato.format(memTotal).replace(',', '.') + " " + formato.format(memFree).replace(',', '.') + " " + formato.format(memUsed).replace(',', '.') + " ";
-
-                    //-------Monitoramento Disco-----------
-                    int cont=0;
-                    for (FileStore store : FileSystems.getDefault().getFileStores()) {
-
-                        if(cont == 0){
-                            //Pegamos apenas as informacoes do Disco principal na maquina - Disco C:                
-                            diskTotal = store.getTotalSpace() /1024.0/1024.0/1024.0;
-                            diskFree = store.getUnallocatedSpace()/1024.0/1024.0/1024.0;
-                            diskUsed = diskTotal - diskFree;
-                            diskPercent = ((double) diskUsed / diskTotal) * 100.0;
-
-                        }
-                        cont+=1;
-
-                    }
-                    
-                    outputDisk = formato.format(diskUsed).replace(",", ".") + " " + formato.format(diskTotal).replace(",", ".") + " " + formato.format(diskPercent).replace(',', '.') + " ";
-
-                    //---------Monitoramento de Rede------
-            
-                    //Usamos a principal, a interface que teve mais bytes enviados
-                    NetInterfaceStat stat = sigar.getNetInterfaceStat(interfacePrincipal);
-                    bytesRecv = stat.getRxBytes();
-                    packetsRecv = stat.getRxPackets();
-                    bytesSent = stat.getTxBytes();
-                    packetsSent = stat.getTxPackets();
-
-                    outputRede = bytesSent + " " + bytesRecv + " ";
-                  
-                    Date dataHoraAtual = new Date();
-                    String dataFormatada = new SimpleDateFormat("yy/MM/dd").format(dataHoraAtual);
-                    String horaFormatada = new SimpleDateFormat("HH:mm:ss").format(dataHoraAtual);
-                    
-                    output = i + dataFormatada + horaFormatada + outputCpu + outputMem + outputDisk + outputRede;
-                    System.out.println(output);
-                    escreverNoArquivo(nomeArquivo, output);
-
-                        Thread.sleep(intervaloTempo); // esperar um segundo antes de verificar novamente
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } finally {
-                        sigar.close();
-                    }
-            }
-    }
-
-    private static void escreverNoArquivo(String nomeArquivo, String conteudo) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(nomeArquivo, true));
-        writer.write(conteudo);
-        writer.newLine();
-        writer.close();
-    }
-    
-    private static String obterInterfaceNetPrincipal(){
-        Sigar sigar = new Sigar();
-        String[] interfaces;
-        String interfacePrincipal = "";
-        long maiorBytesSend = 0;
-        long bytesSend = 0;        
-        try {
-            interfaces = sigar.getNetInterfaceList();
-            for (String iface : interfaces) {
-                NetInterfaceStat stat = sigar.getNetInterfaceStat(iface);
-                bytesSend = stat.getTxBytes();
-
-                if(bytesSend > maiorBytesSend){
-                    maiorBytesSend = bytesSend;
-                    interfacePrincipal = iface;
-
-                }
-            }
-        } catch (SigarException e) {
-            e.printStackTrace();
-        } finally {
-            sigar.close();
-        }
-
-        return interfacePrincipal;
-    }
-
-}
+ import com.sun.management.OperatingSystemMXBean;
+ import java.io.BufferedReader;
+ import java.io.BufferedWriter;
+ import java.io.FileWriter;
+ import java.io.IOException;
+ import java.io.InputStreamReader;
+ import java.lang.management.ManagementFactory;
+ import java.net.NetworkInterface;
+ import java.nio.file.FileStore;
+ import java.nio.file.FileSystem;
+ import java.nio.file.FileSystems;
+ import java.nio.file.Path;
+ import java.nio.file.Paths;
+ import java.text.DecimalFormat;
+ import java.text.SimpleDateFormat;
+ import java.util.Date;
+ import java.util.Enumeration;
+ import java.util.Set;
+ import javax.management.MBeanException;
+ import javax.management.MBeanServerConnection;
+ import javax.management.ObjectInstance;
+ import javax.management.ObjectName;
+ import javax.management.remote.JMXConnector;
+ import javax.management.remote.JMXConnectorFactory;
+ import javax.management.remote.JMXServiceURL;
+ import org.hyperic.sigar.Cpu;
+ import org.hyperic.sigar.CpuInfo;
+ import org.hyperic.sigar.CpuPerc;
+ import org.hyperic.sigar.NetInterfaceStat;
+ import org.hyperic.sigar.Sigar;
+ import org.hyperic.sigar.SigarException;
+ 
+ /**
+  *
+  * @author Itamar Jr
+  */
+ public class ScriptsMonitoramentoComputador {
+ 
+         public static void main(String[] args) throws IOException, MBeanException, SigarException {
+ 
+             String nomeArquivo = "monitoramentoJava.txt";
+             int quantidadeTestes = 10;
+             int intervaloTempo = 1000; //em segundos 
+ 
+             OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+             DecimalFormat formato = new DecimalFormat("#.##");
+             Sigar sigar = null;
+             String interfacePrincipal = obterInterfaceNetPrincipal();
+ 
+             double memTotal, memFree, memUsed, memPercent;
+             
+             double diskTotal = 0.0, diskFree = 0.0, diskUsed = 0.0, diskPercent = 0.0;                        
+             
+             double cpuUsage = 0.0;
+             CpuInfo[] cpuInfos = null; 
+             double cpuPerc = 0.0; 
+             Cpu cpu = null;
+             long cpuTimesUser, cpuTimesSystem, cpuIdle;
+             int qntCpus;
+             
+             long bytesRecv, bytesSent, packetsRecv, packetsSent, errorsRecv, errorsSent;
+             
+             String outputMem = "", outputDisk = "", outputCpu = "", outputRede = "";
+             String output = "";
+             String labelArquivo = "CpuPercent QntCpus CpuTimesUser CpuTimesSystem CpuTimesIdle MemTotal MemAvaliable MemUsed DiskUsed DiskTotal DiskPercent BytesSend BytesRecv ErrSend ErrRecv DataHora";
+             
+             System.out.println(labelArquivo);
+             escreverNoArquivo(nomeArquivo, labelArquivo);
+             for (int i=0; i < quantidadeTestes; i++){
+                 try {               
+                     //----Monitoramento de CPU--------------
+                     //Download do Sigar .JAR e todas as dependencias necessarias estao no link abaixo:
+                     //https://sourceforge.net/projects/sigar/files/sigar/1.6/hyperic-sigar-1.6.4.zip/download
+                     //Caso falte alguma DLL, inserir na pasta c:/Program Files/Java/jdk/bin
+                     sigar = new Sigar();    
+                     
+                     
+                     cpuInfos = sigar.getCpuInfoList();
+                     qntCpus = cpuInfos.length;
+             
+                     cpuPerc = sigar.getCpuPerc().getCombined() * 100.0;
+                     
+                     cpu = sigar.getCpu();
+                     cpuTimesUser = cpu.getUser();
+                     cpuTimesSystem = cpu.getSys();
+                     cpuIdle = cpu.getIdle();
+                     
+                     outputCpu = formato.format(cpuPerc).replace(',', '.') + " " + qntCpus + " " + formato.format(cpuTimesUser).replace(',', '.') + " " + formato.format(cpuTimesSystem).replace(',', '.') + " " + formato.format(cpuIdle).replace(',', '.') + " "; 
+ 
+                     //----Monitoramento Memoria------------
+                     memTotal = osBean.getTotalPhysicalMemorySize()/1024.0/1024.0/1024.0; //Em GB
+                     memFree = osBean.getFreePhysicalMemorySize()/1024.0/1024.0/1024.0;
+                     memUsed = (memTotal - memFree);
+                     memPercent = ((double) memUsed / memTotal) * 100.0;
+ 
+                     outputMem = formato.format(memTotal).replace(',', '.') + " " + formato.format(memFree).replace(',', '.') + " " + formato.format(memUsed).replace(',', '.') + " ";
+ 
+                     //-------Monitoramento Disco-----------
+                     int cont=0;
+                     for (FileStore store : FileSystems.getDefault().getFileStores()) {
+ 
+                         if(cont == 0){
+                             //Pegamos apenas as informacoes do Disco principal na maquina - Disco C:                
+                             diskTotal = store.getTotalSpace() /1024.0/1024.0/1024.0;
+                             diskFree = store.getUnallocatedSpace()/1024.0/1024.0/1024.0;
+                             diskUsed = diskTotal - diskFree;
+                             diskPercent = ((double) diskUsed / diskTotal) * 100.0;
+ 
+                         }
+                         cont+=1;
+ 
+                     }
+                     
+                     outputDisk = formato.format(diskUsed).replace(",", ".") + " " + formato.format(diskTotal).replace(",", ".") + " " + formato.format(diskPercent).replace(',', '.') + " ";
+ 
+                     //---------Monitoramento de Rede------
+             
+                     //Usamos a principal, a interface que teve mais bytes enviados
+                     NetInterfaceStat stat = sigar.getNetInterfaceStat(interfacePrincipal);
+                     bytesRecv = stat.getRxBytes();
+                     packetsRecv = stat.getRxPackets();
+                     errorsRecv = stat.getRxErrors();
+                     bytesSent = stat.getTxBytes();
+                     packetsSent = stat.getTxPackets();
+                     errorsSent = stat.getTxErrors();
+ 
+                     outputRede = bytesSent + " " + bytesRecv + " " + errorsSent + " " + errorsRecv + " ";
+                   
+                     Date dataHoraAtual = new Date();
+                     String dataFormatada = new SimpleDateFormat("yy/MM/dd-HH:mm:ss").format(dataHoraAtual);
+                     
+                     output = outputCpu + outputMem + outputDisk + outputRede + dataFormatada;
+                     System.out.println(output);
+                     escreverNoArquivo(nomeArquivo, output);
+ 
+                         Thread.sleep(intervaloTempo); // esperar um segundo antes de verificar novamente
+                 } catch (InterruptedException e) {
+                     e.printStackTrace();
+                 } finally {
+                         sigar.close();
+                     }
+             }
+     }
+ 
+     private static void escreverNoArquivo(String nomeArquivo, String conteudo) throws IOException {
+         BufferedWriter writer = new BufferedWriter(new FileWriter(nomeArquivo, true));
+         writer.write(conteudo);
+         writer.newLine();
+         writer.close();
+     }
+     
+     private static String obterInterfaceNetPrincipal(){
+         Sigar sigar = new Sigar();
+         String[] interfaces;
+         String interfacePrincipal = "";
+         long maiorBytesSend = 0;
+         long bytesSend = 0;        
+         try {
+             interfaces = sigar.getNetInterfaceList();
+             for (String iface : interfaces) {
+                 NetInterfaceStat stat = sigar.getNetInterfaceStat(iface);
+                 bytesSend = stat.getTxBytes();
+ 
+                 if(bytesSend > maiorBytesSend){
+                     maiorBytesSend = bytesSend;
+                     interfacePrincipal = iface;
+ 
+                 }
+             }
+         } catch (SigarException e) {
+             e.printStackTrace();
+         } finally {
+             sigar.close();
+         }
+ 
+         return interfacePrincipal;
+     }
+ 
+ }
