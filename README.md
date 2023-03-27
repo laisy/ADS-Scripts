@@ -20,6 +20,8 @@
 ## SISTEMA DE CARGA
 
     1. JMeater
+    2. Phoronix Test Suite
+    3. STRESS-NG
 ## EXECUTAR SCRIPTS BASH
 
     sudo chmod a+x "nome_do_script".sh
@@ -69,5 +71,49 @@
     5. Rode:
         ./jmeter
 
+    OBS. JMeater é para testar a performance de aplicativos da web, serviços web, servidores FTP
+
+## Phoronix Test Suite
+    1. Download:
+        https://www.phoronix-test-suite.com/.
+    2. sudo dpkg -i Phoronix-Test-Suite.deb
+    3. phoronix-test-suite list-tests
+    4. phoronix-test-suite benchmark nome-do-teste
+
+    MEMÓRIA:
+        O teste "RAMspeed / SMP" é um conjunto de testes de benchmark de memória RAM que é executado com vários tipos diferentes de operações de memória, incluindo leitura, gravação e cópia. Ele também pode ser executado em sistemas com vários núcleos ou processadores, o que o torna uma boa opção para testar a memória em sistemas de alto desempenho.
+
+        phoronix-test-suite benchmark ramspeed
+
+    CPU:
+        O teste "Timed Compilation" é um teste de benchmark que mede o tempo necessário para compilar um grande programa de software. Esse tipo de teste é útil para medir o desempenho da CPU em tarefas intensivas em CPU, como compilação de código ou renderização de vídeo.
+
+        phoronix-test-suite benchmark timed-compilation
+
+    DISCO:
+        O teste "Disk Test" é um teste de benchmark que mede a velocidade de leitura e gravação do disco rígido ou unidade de estado sólido (SSD). Ele usa uma variedade de tamanhos de arquivos e padrões de acesso para testar a velocidade do disco em diferentes cenários de uso.
+
+        phoronix-test-suite benchmark disk
+
+    REDE:
+        O teste "Disk Test" é um teste de benchmark que mede a velocidade de leitura e gravação do disco rígido ou unidade de estado sólido (SSD). Ele usa uma variedade de tamanhos de arquivos e padrões de acesso para testar a velocidade do disco em diferentes cenários de uso.
+
+        phoronix-test-suite benchmark disk
 
 
+## STRESS-NG
+
+    1. sudo snap install stress-ng
+    2. stress-ng --cpu 4 --io 2 --vm 1 --vm-bytes 512M --timeout 10s --metrics-brief
+    3. stress-ng --cpu 4 
+    4. stress-ng --vm 4 
+
+## TESTE DE STRESS
+
+    para criar um teste de estresse no disco rígido usando o "dd", você pode usar o seguinte comando:
+
+        dd if=/dev/zero of=testfile bs=1G count=1 conv=fdatasync
+
+    Para testar o desempenho da CPU, você pode usar o STRESS-NG para criar carga de trabalho na CPU:
+
+        stress-ng --cpu 4 --timeout 60s
