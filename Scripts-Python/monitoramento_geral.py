@@ -64,11 +64,11 @@ intervalo_minutos = 2
 segundos = 1
 
 #Escreve a label do arquivo
-arquivo = open("monitoramento_py.txt", "w")
+arquivo = open("monitoramento_py_cpu.txt", "w")
 arquivo.write("Testes Data Hora CpuPercent QntCpus CpuTimesUser CpuTimesSystem CpuTimesIdle MemTotal MemAvaliable MemUsed DiskUsed DiskTotal DiskPercent BytesSend BytesRecv\n")
 arquivo.close()
 
-arquivo = open("monitoramento_py.txt", "a")
+arquivo = open("monitoramento_py_cpu.txt", "a")
 for q in range(quantidade_testes):
     
     cpu_percent, cpu_count, cpu_times_user, cpu_times_system, cpu_times_idle = teste_cpu()   
