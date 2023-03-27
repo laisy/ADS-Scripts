@@ -59,8 +59,8 @@ def teste_rede():
 
     return bytes_sent, bytes_recv, err_sent, err_recv
 
-quantidade_testes = 10
-intervalo_minutos = 1 
+quantidade_testes = 100
+intervalo_minutos = 2 
 segundos = 1
 
 #Escreve a label do arquivo
