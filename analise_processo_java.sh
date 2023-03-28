@@ -2,7 +2,7 @@
 
 # Obter o nome do processo que será monitorado
 
-  echo "DATA_ATUAL HORA_ATUAL PID  MEMTOTAL %CPU %MEM TIME MSECOND" > resultado_processo_java.txt 
+  echo "DATA_ATUAL HORA_ATUAL PID  MEMTOTAL %CPU %MEM TIME MSECOND" > resultado_processo_java_memoria.txt 
   echo "DATA_ATUAL HORA_ATUAL PID  MEMTOTAL %CPU %MEM TIME MSECOND"
 
 while true
@@ -29,7 +29,7 @@ do
     #echo $memUsed
           
     # Exibir as informações de uso de memória, uso de CPU e tempo de execução  
-    echo "$data_atual $pid $memTotal $process_info $elapsed_time" >> resultado_processo_java.txt
+    echo "$data_atual $pid $memTotal $process_info $elapsed_time" >> resultado_processo_java_memoria.txt
     echo "$data_atual $pid $memTotal $process_info $elapsed_time"
        
   else
