@@ -1,0 +1,4 @@
+INDEX VERSION 1.131+/home/jeffeson/Documentos/Scripts/ADS-Scripts/Scripts_javaScript/.metadata/.plugins/org.eclipse.jdt.core
+1402089441.index
+690548361.index
+2942603552.index
