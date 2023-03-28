@@ -70,7 +70,7 @@ public class ScriptsMonitoramentoComputador {
             
             String outputMem = "", outputDisk = "", outputCpu = "", outputRede = "";
             String output = "";
-            String labelArquivo = "Testes Data Hora CpuPercent QntCpus CpuTimesUser CpuTimesSystem CpuTimesIdle MemTotal MemAvaliable MemUsed DiskUsed DiskTotal DiskPercent BytesSend BytesRecv";
+            String labelArquivo = "CpuPercent QntCpus CpuTimesUser CpuTimesSystem CpuTimesIdle MemTotal MemAvaliable MemUsed DiskUsed DiskTotal DiskPercent BytesSend BytesRecv ErrSend ErrRecv DataHora";
             
             System.out.println(labelArquivo);
             escreverNoArquivo(nomeArquivo, labelArquivo);
@@ -96,7 +96,7 @@ public class ScriptsMonitoramentoComputador {
                     outputCpu = formato.format(cpuPerc).replace(',', '.') + " " + qntCpus + " " + formato.format(cpuTimesUser).replace(',', '.') + " " + formato.format(cpuTimesSystem).replace(',', '.') + " " + formato.format(cpuIdle).replace(',', '.') + " "; 
 
                     //----Monitoramento Memoria------------
-                    memTotal = osBean.getTotalPhysicalMemorySize()/1024.0; //Em bytes
+                    memTotal = osBean.getTotalPhysicalMemorySize()/1024.0; //Em GB
                     memFree = osBean.getFreePhysicalMemorySize()/1024.0;
                     memUsed = (memTotal - memFree);
                     memPercent = ((double) memUsed / memTotal) * 100.0;
@@ -132,13 +132,12 @@ public class ScriptsMonitoramentoComputador {
                     packetsSent = stat.getTxPackets();
                     errorsSent = stat.getTxErrors();
 
-                    outputRede = bytesSent + " " + bytesRecv + " ";
+                    outputRede = bytesSent + " " + bytesRecv + " " + errorsSent + " " + errorsRecv + " ";
                   
                     Date dataHoraAtual = new Date();
-                    String dataFormatada = new SimpleDateFormat("yy/MM/dd").format(dataHoraAtual);
-                    String horaFormatada = new SimpleDateFormat("HH:mm:ss").format(dataHoraAtual);
+                    String dataFormatada = new SimpleDateFormat("yy/MM/dd HH:mm:ss").format(dataHoraAtual);
                     
-                    output = (i +1) + " " + dataFormatada + " " + horaFormatada + " " + outputCpu + outputMem + outputDisk + outputRede;
+                    output = outputCpu + outputMem + outputDisk + outputRede + dataFormatada;
                     System.out.println(output);
                     escreverNoArquivo(nomeArquivo, output);
 

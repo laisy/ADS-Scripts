@@ -138,7 +138,7 @@ public class ScriptsMonitoramentoComputador {
                     String dataFormatada = new SimpleDateFormat("yy/MM/dd").format(dataHoraAtual);
                     String horaFormatada = new SimpleDateFormat("HH:mm:ss").format(dataHoraAtual);
                     
-                    output = (i +1) + " " + dataFormatada + " " + horaFormatada + " " + outputCpu + outputMem + outputDisk + outputRede;
+                    output = i + " " + dataFormatada + " " + horaFormatada + outputCpu + outputMem + outputDisk + outputRede;
                     System.out.println(output);
                     escreverNoArquivo(nomeArquivo, output);
 

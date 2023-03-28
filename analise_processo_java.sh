@@ -2,13 +2,13 @@
 
 # Obter o nome do processo que será monitorado
 
-  echo "DATA_ATUAL HORA_ATUAL PID  MEMTOTAL %CPU %MEM TIME MSECOND" > resultado_processo_cpu.txt 
+  echo "DATA_ATUAL HORA_ATUAL PID  MEMTOTAL %CPU %MEM TIME MSECOND" > resultado_processo_java.txt 
   echo "DATA_ATUAL HORA_ATUAL PID  MEMTOTAL %CPU %MEM TIME MSECOND"
 
 while true
 do
   # Obter o ID do processo especificado
-  pid=$(pgrep -f "python3 monitoramento_geral.py")
+  pid=$(pgrep -f "java ScriptsMonitoramentoComputador.java")
   
   if [ -n "$pid" ]; then
     # Obter informação de data e hora
@@ -29,7 +29,7 @@ do
     #echo $memUsed
           
     # Exibir as informações de uso de memória, uso de CPU e tempo de execução  
-    echo "$data_atual $pid $memTotal $process_info $elapsed_time" >> resultado_processo_cpu.txt
+    echo "$data_atual $pid $memTotal $process_info $elapsed_time" >> resultado_processo_java.txt
     echo "$data_atual $pid $memTotal $process_info $elapsed_time"
        
   else
